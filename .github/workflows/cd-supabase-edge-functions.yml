@@ -1,4 +1,4 @@
-name: Deploy Function
+name: Deploy Supabase Edge Function
 
 on:
   push:
