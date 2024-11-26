@@ -38,4 +38,5 @@ npx supabase functions deploy
 
 ```
 deno run -A npm:prisma migrate dev --name init
+deno run -A npm:prisma generate --no-engine
 ```

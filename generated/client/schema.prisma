@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["deno"]
+  output          = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Evacuee {
+  id              String   @id @default(uuid()) // 避難者ID
+  fullName        String // 氏名
+  birthDate       DateTime // 生年月日
+  gender          String // 性別
+  requiresSupport Boolean // 要配慮者フラグ
+  healthCondition String // 健康状態
+  medicalNeeds    String // 医療・服薬等の有無
+  allergy         String // アレルギー
+  specialNotes    String // 特記事項
+  publicInfo      Boolean // 情報公開可否
+  createdAt       DateTime @default(now()) // 登録日時
+  updatedAt       DateTime @updatedAt // 更新日時
+}
