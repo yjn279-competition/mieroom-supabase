@@ -7,8 +7,35 @@
 
 ## For Development
 
-### Deploy
+### Edge Function
+
+#### Adding an Edge Function
+
+```shell
+npx supabase functions new {functionName}
+```
+
+#### Local Run
+
+```shell
+npx supabase start
+npx supabase functions serve --no-verify-jwt
+```
+
+```shell
+curl --location 'http://127.0.0.1:54321/functions/v1/{functionName}/'
+```
+
+#### Deploy
 
 ```shell
 npx supabase functions deploy
+```
+
+### DB
+
+#### Migration
+
+```
+deno run -A npm:prisma migrate dev --name init
 ```
