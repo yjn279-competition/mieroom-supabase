@@ -128,7 +128,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/yuji/Documents/GitHub/mieroom-supabase/generated/client",
+      "value": "/Users/yuji/Documents/GitHub/mieroom-supabase/supabase/functions/_shared/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -148,10 +148,10 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../../../.env"
   },
-  "relativePath": "../../prisma",
+  "relativePath": "../../../../../prisma",
   "clientVersion": "5.22.0",
   "engineVersion": "605197351a3c8bdd595af2d2a9bc3025bca48ea2",
   "datasourceNames": [
@@ -167,8 +167,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider        = \"prisma-client-js\"\n  previewFeatures = [\"deno\"]\n  output          = \"../generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Evacuee {\n  id              String   @id @default(uuid()) // 避難者ID\n  fullName        String // 氏名\n  birthDate       DateTime // 生年月日\n  gender          String // 性別\n  requiresSupport Boolean // 要配慮者フラグ\n  healthCondition String // 健康状態\n  medicalNeeds    String // 医療・服薬等の有無\n  allergy         String // アレルギー\n  specialNotes    String // 特記事項\n  publicInfo      Boolean // 情報公開可否\n  createdAt       DateTime @default(now()) // 登録日時\n  updatedAt       DateTime @updatedAt // 更新日時\n}\n",
-  "inlineSchemaHash": "3f4d495bc6d366a9ff4c6a54451f8ba48b5b1e426275fe1f0503494b0133811c",
+  "inlineSchema": "generator client {\n  provider        = \"prisma-client-js\"\n  previewFeatures = [\"deno\"]\n  output          = \"../supabase/functions/_shared/generated/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nmodel Evacuee {\n  id              String   @id @default(uuid()) // 避難者ID\n  fullName        String // 氏名\n  birthDate       DateTime // 生年月日\n  gender          String // 性別\n  requiresSupport Boolean // 要配慮者フラグ\n  healthCondition String // 健康状態\n  medicalNeeds    String // 医療・服薬等の有無\n  allergy         String // アレルギー\n  specialNotes    String // 特記事項\n  publicInfo      Boolean // 情報公開可否\n  createdAt       DateTime @default(now()) // 登録日時\n  updatedAt       DateTime @updatedAt // 更新日時\n}\n",
+  "inlineSchemaHash": "32e67240f1d655dcbe95b73b74aad30ca074212a38d7ea452148d8b9502e58e3",
   "copyEngine": false
 }
 config.dirname = '/'

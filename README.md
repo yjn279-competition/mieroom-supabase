@@ -29,7 +29,7 @@ curl --location 'http://127.0.0.1:54321/functions/v1/{functionName}/'
 #### Deploy
 
 ```shell
-npx supabase functions deploy
+npx supabase functions deploy {functionName}
 ```
 
 ### DB
@@ -37,6 +37,6 @@ npx supabase functions deploy
 #### Migration
 
 ```
-deno run -A npm:prisma migrate dev --name init
+deno run -A npm:prisma migrate dev --name {migrationName}
 deno run -A npm:prisma generate --no-engine
 ```
