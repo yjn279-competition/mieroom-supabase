@@ -1,59 +1,72 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-import { createClient } from 'jsr:@supabase/supabase-js@2'
+// CORSヘッダーの定義
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+};
 
-console.log(`Function "select-from-table-with-auth-rls" up and running!`)
+console.log(`Function "select-from-table-with-auth-rls" up and running!`);
 
 Deno.serve(async (req: Request) => {
-  // This is needed if you're planning to invoke your function from a browser.
+  // OPTIONSリクエストの処理 (CORSのため)
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Create a Supabase client with the Auth context of the logged in user.
+    // Authorizationヘッダーからトークンを取得
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization token is missing' }),
+        { headers: corsHeaders, status: 401 }
+      );
+    }
+
+    // Supabaseクライアントを作成
     const supabaseClient = createClient(
-      // Supabase API URL - env var exported by default.
       Deno.env.get('SUPABASE_URL') ?? '',
-      // Supabase API ANON KEY - env var exported by default.
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      // Create client with Auth context of the user that called the function.
-      // This way your row-level-security (RLS) policies are applied.
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: `Bearer ${token}` },
         },
       }
-    )
+    );
 
-    // First get the token from the Authorization header
-    const token = req.headers.get('Authorization').replace('Bearer ', '')
-
-    // Now we can get the session or user object
+    // トークンからユーザー情報を取得
     const {
       data: { user },
-    } = await supabaseClient.auth.getUser(token)
+      error: userError,
+    } = await supabaseClient.auth.getUser(token);
 
-    // And we can run queries in the context of our authenticated user
-    const { data, error } = await supabaseClient.from('Evacuee').select('*')
-    if (error) throw error
+    if (userError) {
+      throw new Error(`Failed to fetch user: ${userError.message}`);
+    }
 
-    return new Response(JSON.stringify({ user, data }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    // テーブル 'Evacuee' からデータを取得
+    const { data, error } = await supabaseClient.from('Evacuee').select('*');
+    if (error) {
+      throw new Error(`Failed to fetch data: ${error.message}`);
+    }
+
+    // 成功レスポンスを返却
+    return new Response(
+      JSON.stringify({ user, data }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    })
+    console.error('Function error:', error); // ログ出力
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      }
+    );
   }
-})
-
-// To invoke:
-// curl -i --location --request POST 'http://localhost:54321/functions/v1/select-from-table-with-auth-rls' \
-//   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs' \
-//   --header 'Content-Type: application/json' \
-//   --data '{"name":"Functions"}'
+});
