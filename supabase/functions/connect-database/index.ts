@@ -3,7 +3,6 @@
 // This enables autocomplete, go to definition, etc.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
 
 console.log(`Function "select-from-table-with-auth-rls" up and running!`)
 
