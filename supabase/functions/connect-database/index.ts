@@ -1,3 +1,7 @@
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 // CORSヘッダーの定義
@@ -19,8 +23,23 @@ Deno.serve(async (req: Request) => {
     const token = req.headers.get('Authorization')?.replace('Bearer ', '');
     if (!token) {
       return new Response(
-        JSON.stringify({ error: 'Authorization token is missing' }),
+        JSON.stringify({ error: 'Authorization token is missing or invalid' }),
         { headers: corsHeaders, status: 401 }
+      );
+    }
+
+    // トークンのデコードと検証
+    let decodedToken;
+    try {
+      decodedToken = JSON.parse(atob(token.split('.')[1]));
+      if (!decodedToken.sub) {
+        throw new Error('Invalid token: missing sub claim');
+      }
+    } catch (error) {
+      console.error('Token decoding error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to decode token: ' + error.message }),
+        { headers: corsHeaders, status: 400 }
       );
     }
 
@@ -35,22 +54,28 @@ Deno.serve(async (req: Request) => {
       }
     );
 
-    // トークンからユーザー情報を取得
+    // ユーザー情報を取得
     const {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser(token);
 
     if (userError) {
-      throw new Error(`Failed to fetch user: ${userError.message}`);
+      console.error('User fetch error:', userError);
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch user: ${userError.message}` }),
+        { headers: corsHeaders, status: 400 }
+      );
     }
-    console.log('Authorization Header:', req.headers.get('Authorization'));
-    console.log('Decoded Token:', token);
 
     // テーブル 'Evacuee' からデータを取得
     const { data, error } = await supabaseClient.from('Evacuee').select('*');
     if (error) {
-      throw new Error(`Failed to fetch data: ${error.message}`);
+      console.error('Data fetch error:', error);
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch data: ${error.message}` }),
+        { headers: corsHeaders, status: 400 }
+      );
     }
 
     // 成功レスポンスを返却
@@ -62,12 +87,12 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (error) {
-    console.error('Function error:', error); // ログ出力
+    console.error('Function error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 500,
       }
     );
   }
