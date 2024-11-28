@@ -44,6 +44,8 @@ Deno.serve(async (req: Request) => {
     if (userError) {
       throw new Error(`Failed to fetch user: ${userError.message}`);
     }
+    console.log('Authorization Header:', req.headers.get('Authorization'));
+    console.log('Decoded Token:', token);
 
     // テーブル 'Evacuee' からデータを取得
     const { data, error } = await supabaseClient.from('Evacuee').select('*');
