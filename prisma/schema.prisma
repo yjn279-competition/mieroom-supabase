@@ -29,3 +29,24 @@ model Evacuee {
   createdAt       DateTime @default(now())  // 登録日時
   updatedAt       DateTime @updatedAt  // 更新日時
 }
+
+model Feature {
+  location                    GM_Point  //位置
+  administrative_area_code    list      //行政区域コード
+  name                        String    //名称
+  address                     String    //住所
+  type                        String    //施設の種類
+  capacity                    Integer   //収容人数
+  scale                       Integer   //施設規模
+  earthquake                  Boolean   //地震災害
+  tsunami                     Boolean   //津波災害
+  storm                       Boolean   //風水災害
+  volcano                     Boolean   //火山災害
+  other                       Boolean   //その他
+  none                        Boolean   //指定なし
+}
+
+model CodeList {
+  code                 Integer  //行政区域コード
+  administrative_area  String   //行政区域
+}
